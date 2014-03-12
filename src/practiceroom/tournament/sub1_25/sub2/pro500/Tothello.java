@@ -1,25 +1,29 @@
 package practiceroom.tournament.sub1_25.sub2.pro500;
 
-import javax.xml.transform.Templates;
-
 public class Tothello {
 
 	private String[][] grid;
+	private String[][] mainGrid = new String[8][8];
 	private String[] emptypeices = new String[64];
 
 	public int bestMove(String[] redPieces, String[] blackPeices, String whoseTurn) {
 		grid = createGrid(redPieces, blackPeices);
+		printGrig(grid);
+		mainGrid = grid.clone();
+		// System.arraycopy(grid, 0, mainGrid, 0, grid.length);
+
 		if (whoseTurn.equals("Red")) {
 			whoseTurn = "R";
 		} else {
 			whoseTurn = "B";
 		}
-		solve(whoseTurn);
-		printGrig(grid);
-		return 0;
+		int count = solve(redPieces, blackPeices, whoseTurn);
+		// printGrig(grid);
+		// printGrig(mainGrid);
+		return count;
 	}
 
-	private void solve(String whoseTurn) {
+	private int solve(String[] redPieces, String[] blackPeices, String whoseTurn) {
 		String find = whoseTurn.equals("R") ? "B" : "R";
 		int count = 0;
 		String c = null;
@@ -29,22 +33,37 @@ public class Tothello {
 				int a = Character.getNumericValue(emptypeices[i].charAt(0));
 				int b = Character.getNumericValue(emptypeices[i].charAt(1));
 
-				int resultCount = getCount(a, b, find, whoseTurn);
-				printGrig(grid);
+				getCount(a, b, find, whoseTurn);
+				int resultCount = 0;
+				// printGrig(grid);
 				String[] wt = findWhoseTurn(whoseTurn);
 				for (String l : wt) {
 					if (l != null) {
-						resultCount += getCount(Character.getNumericValue(l.charAt(0)), Character.getNumericValue(l.charAt(1)), find, whoseTurn);
+						getCount(Character.getNumericValue(l.charAt(0)), Character.getNumericValue(l.charAt(1)), find, whoseTurn);
+
 					}
 				}
-				System.out.println(resultCount);
+				for (int k = 0; k < 8; k++) {
+					for (int m = 0; m < 8; m++) {
+						if (grid[k][m] == whoseTurn) {
+							resultCount++;
+						}
+					}
+				}
+
+				resultCount++;
+				// System.out.println(resultCount);
 				if (resultCount > count) {
 					count = resultCount;
 				}
-				System.out.println(c + "   " + count);
+
+				grid = createGrid(redPieces, blackPeices);
+				// System.out.println(c + " is  " + count);
+				// printGrig(grid);
 			}
 
 		}
+		return count;
 
 	}
 
@@ -61,7 +80,7 @@ public class Tothello {
 		return wt;
 	}
 
-	private int getCount(int a, int b, String find, String whoseTurn) {
+	private void getCount(int a, int b, String find, String whoseTurn) {
 		int count = 0;
 		int x = a, y = b;
 
@@ -76,7 +95,7 @@ public class Tothello {
 				}
 				if (grid[x][y].equals(whoseTurn)) {
 					tempCount++;
-					for (int j = a + 1; j < y; j++) {
+					for (int j = b + 1; j < y; j++) {
 						grid[x][j] = whoseTurn;
 					}
 				}
@@ -226,8 +245,8 @@ public class Tothello {
 				count += tempCount;
 			}
 		}
-		printGrig(grid);
-		return count;
+		// printGrig(grid);
+		// return count;
 	}
 
 	public String[][] createGrid(String[] redPieces, String[] blackPeices) {
@@ -235,8 +254,6 @@ public class Tothello {
 		int c = 0;
 		for (int r = 0; r < redPieces.length; r++) {
 			String v = redPieces[r];
-			System.out.println(v.charAt(0) - 'A');
-			System.out.println(Character.getNumericValue(v.charAt(1)) - 1);
 			g[Character.getNumericValue(v.charAt(1)) - 1][(v.charAt(0) - 'A')] = "R";
 		}
 		for (int b = 0; b < blackPeices.length; b++) {
@@ -247,12 +264,11 @@ public class Tothello {
 			for (int j = 0; j < 8; j++) {
 				if (g[i][j] == null) {
 					g[i][j] = "-";
-					System.out.println(i + "" + j + "   " + c);
 					emptypeices[c++] = i + "" + j;
 				}
 			}
 		}
-		printGrig(g);
+		// printGrig(g);
 		return g;
 	}
 
@@ -273,8 +289,12 @@ public class Tothello {
 		// B1,E1,G1,C6,H7,G4
 		// String[] redPieces = { "D1", "D4", "A7" };
 		// String[] blackPieces = { "B1", "C1", "B2", "C3", "B6" };
-		String[] redPieces = { "C2", "C3", "C4", "C5", "D4", "E4", "F2", "F3", "F4", "F5", "G6" };
+		/*String[] redPieces = { "C2", "C3", "C4", "C5", "D4", "E4", "F2", "F3", "F4", "F5", "G6" };
 		String[] blackPieces = { "B1", "E1", "G1", "C6", "H7", "G4" };
-		t.bestMove(redPieces, blackPieces, "Black");
+		t.bestMove(redPieces, blackPieces, "Black");*/
+		String[] redPieces = { "A1", "B8", "C6", "C8", "D8" };
+		String[] blackPieces = { "B2", "C2", "C3", "C4", "C5" };
+		int count = t.bestMove(redPieces, blackPieces, "Red");
+		System.out.println(count);
 	}
 }
