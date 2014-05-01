@@ -26,10 +26,16 @@ public class FullBinaryTree {
 			this.val = val;
 			this.child = child;
 		}
+
+		@Override
+		public String toString() {
+			return "Node [ val=" + val + ", child=" + child + "]";
+		}
+
 	}
 
 	public static void main(String[] args) {
-		String base = "C:\\programs\\GCJ\\ChargingChaos\\";
+		String base = "C:\\programs\\GCJ\\FullBinaryTree\\";
 		String input = base + "input.in";
 		String output = base + "output.out";
 		Scanner sc = null;
@@ -43,7 +49,6 @@ public class FullBinaryTree {
 			sc.nextLine();
 			int count = 1;
 			while (t-- > 0) {
-
 				int n = sc.nextInt();
 				HashMap<Integer, java.util.List<Integer>> maps = new HashMap<Integer, java.util.List<Integer>>();
 				HashMap<Integer, Integer> degree = new HashMap<Integer, Integer>();
@@ -73,10 +78,10 @@ public class FullBinaryTree {
 					}
 					list.add(v[0]);
 					maps.put(v[1], list);
-					slove(maps, degree, n);
 				}
-
-			}
+				int result = slove(maps, degree, n);
+				pw.println("Case #" + (count++) + ": " + result);
+			} 
 
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -89,20 +94,24 @@ public class FullBinaryTree {
 
 	}
 
-	private static void slove(HashMap<Integer, java.util.List<Integer>> maps, HashMap<Integer, Integer> degree, int n) {
+	private static int slove(HashMap<Integer, java.util.List<Integer>> maps, HashMap<Integer, Integer> degree, int n) {
 		ArrayList<Integer> rootNodes = new ArrayList<Integer>();
-		for (Entry<Integer, Integer> set : degree.entrySet()) {
-			if (set.getValue() == 2) {
+		for (Entry<Integer, java.util.List<Integer>> set : maps.entrySet()) {
+			if (set.getValue().size() == 2) {
 				rootNodes.add(set.getKey());
 			}
 		}
-		int deletedNodeCount = n;
-		for (Integer r : rootNodes) {
-			Node root = new Node(null, null, new Node(null, null, null, 0, 0), r, 0);
-			root = makeTree(root, maps);
-			int count = deleteNode(root, 0);
-			deletedNodeCount = Math.min(count, deletedNodeCount);
+		int deletedNodeCount = 0;
+		if (rootNodes.size() > 0) {
+			deletedNodeCount = n;
+			for (Integer r : rootNodes) {
+				Node root = new Node(null, null, new Node(null, null, null, -1, 0), r, 0);
+				root = makeTree(root, maps);
+				int count = deleteNode(root, 0);
+				deletedNodeCount = Math.min(count, deletedNodeCount);
+			}
 		}
+		return deletedNodeCount;
 	}
 
 	private static int deleteNode(Node root, int count) {
@@ -110,20 +119,19 @@ public class FullBinaryTree {
 		if (root.child == 1) {
 			if (root.left != null) {
 				c += root.child;
-				deleteNode(root.left, c);
+				int g = deleteNode(root.left, c);
+				c = g;
 			}
 			if (root.right != null) {
 				c += root.child;
-				deleteNode(root.right, c);
+				int g = deleteNode(root.right, c);
+				c = g;
 			}
 		} else {
 			if (root.left != null)
-				deleteNode(root.left, c);
+				c = deleteNode(root.left, c);
 			if (root.right != null)
-				deleteNode(root.right, c);
-		}
-		if (root.left != null) {
-
+				c = deleteNode(root.right, c);
 		}
 		return c;
 	}
@@ -136,7 +144,7 @@ public class FullBinaryTree {
 					root.left = makeTree(new Node(null, null, root, i, 0), maps);
 				}
 			} else {
-				if (root.parent != null && root.val != root.parent.val) {
+				if (root.parent != null && i != root.parent.val) {
 					root.right = makeTree(new Node(null, null, root, i, 0), maps);
 				}
 			}
